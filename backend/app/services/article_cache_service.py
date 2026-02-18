@@ -16,7 +16,7 @@ from app.services.news_service import RawArticle
 
 logger = logging.getLogger(__name__)
 
-ARTICLE_CACHE_TTL_HOURS = 1
+ARTICLE_CACHE_TTL_HOURS = 0.05
 
 
 async def get_or_create_ticker(

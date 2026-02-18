@@ -9,7 +9,6 @@
 import { useState, useEffect } from "react";
 import { TickerSearch } from "@/components/ui/TickerSearch";
 import { DigestCard } from "@/components/news/DigestCard";
-import { ArticleList } from "@/components/news/ArticleList";
 import { api, type NewsResponse } from "@/lib/api";
 
 type TabType = "brief" | "pulse";
@@ -43,11 +42,11 @@ export default function HomePage() {
       {/* 히어로 섹션 */}
       <div className="text-center space-y-3">
         <div className="text-5xl mb-4">📈</div>
-        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">fin-aily</h1>
+        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">fin-Aily</h1>
         <p className="text-slate-500 text-base max-w-md mx-auto leading-relaxed">
           {activeTab === "brief" 
             ? "티커를 검색하면 AI가 최신 뉴스를 10개의 핵심 포인트로 요약해드립니다." 
-            : "MarketWatch의 주요 경제 소식을 AI 비서가 정리해드립니다."}
+            : "최신 주요 경제 소식을 AI 비서가 정리해드립니다."}
         </p>
       </div>
 
@@ -80,12 +79,6 @@ export default function HomePage() {
         {activeTab === "brief" ? (
           <div className="flex flex-col items-center gap-8 animate-in fade-in zoom-in-95">
             <TickerSearch />
-            <div className="flex gap-3 text-slate-400 text-xs font-medium">
-              <span>인기 티커:</span>
-              {["NVDA", "TSLA", "AAPL", "MSFT"].map(t => (
-                <button key={t} className="hover:text-blue-500 transition-colors uppercase">{t}</button>
-              ))}
-            </div>
           </div>
         ) : (
           <div className="animate-in fade-in slide-in-from-bottom-4 space-y-10">
@@ -95,19 +88,10 @@ export default function HomePage() {
                   <div className="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
                   <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
                 </div>
-                <p className="text-slate-500 font-medium animate-pulse">AI 비서가 MarketWatch 뉴스를 분석하고 있습니다...</p>
+                <p className="text-slate-500 font-medium animate-pulse">AI 비서가 최신 뉴스를 분석하고 있습니다...</p>
               </div>
             ) : marketData ? (
-              <>
-                <DigestCard digest={marketData.digest} symbol="MARKET" />
-                <div className="space-y-5">
-                  <div className="flex items-center justify-between px-1">
-                    <h3 className="text-xl font-bold text-slate-900">최신 시장 기사</h3>
-                    <span className="text-xs text-slate-400">MarketWatch RSS</span>
-                  </div>
-                  <ArticleList articles={marketData.articles} />
-                </div>
-              </>
+              <DigestCard digest={marketData.digest} symbol="MARKET" articles={marketData.articles} />
             ) : (
               <div className="py-20 border-2 border-dashed border-slate-200 rounded-3xl text-center">
                 <p className="text-slate-400">시장의 맥박을 불러올 수 없습니다. 다시 시도해주세요.</p>

@@ -13,12 +13,12 @@ from typing import Optional
 
 import feedparser
 import yfinance as yf
+from newspaper import Article
 
 logger = logging.getLogger(__name__)
 
 RSS_FEEDS = {
-    "MarketWatch": "https://feeds.marketwatch.com/marketwatch/topstories/",
-    "Yahoo Finance": "https://finance.yahoo.com/rss/",
+    "Yahoo_Finance": "https://finance.yahoo.com/rss/", # 야후 파이낸스 종합 금융 뉴스
 }
 
 @dataclass
@@ -28,6 +28,20 @@ class RawArticle:
     source: str
     published_at: Optional[datetime]
     raw_content: str
+
+def _scrape_body(url: str) -> str:
+    """기사 URL에서 본문을 추출한다. 실패 시 빈 문자열 반환."""
+    if not url:
+        return ""
+    try:
+        article = Article(url)
+        article.download()
+        article.parse()
+        return article.text or ""
+    except Exception as e:
+        logger.debug("본문 스크래핑 실패: url=%s, error=%s", url, e)
+        return ""
+
 
 async def fetch_articles(symbol: str, limit: int = 10) -> list[RawArticle]:
     """티커 심볼에 대한 최신 뉴스를 수집한다."""
@@ -41,12 +55,13 @@ async def fetch_articles(symbol: str, limit: int = 10) -> list[RawArticle]:
 
 async def fetch_market_news(limit: int = 10) -> list[RawArticle]:
     """
-    MarketWatch Top Stories RSS에서 최신 뉴스를 수집한다 (Market Pulse용).
+    Yahoo Finance 또는 MarketWatch의 금융 시장 전용 RSS에서 최신 뉴스를 수집한다.
     """
-    url = RSS_FEEDS["MarketWatch"]
+    # 사용자가 제안한 대로 Yahoo Finance를 사용하거나 MarketWatch의 시장 전용 피드를 선택합니다.
+    url = RSS_FEEDS["Yahoo_Finance"] # 또는 RSS_FEEDS["MarketWatch_Market"]
+    
     articles = []
     try:
-        # feedparser를 사용하여 RSS 피드 파싱
         feed = feedparser.parse(url)
         for entry in feed.entries[:limit]:
             pub = entry.get("published_parsed")
@@ -55,15 +70,18 @@ async def fetch_market_news(limit: int = 10) -> list[RawArticle]:
                 if pub else datetime.now(timezone.utc)
             )
             
+            # 소스 이름 동적 할당
+            source_name = "Yahoo Finance" if "yahoo" in url else "MarketWatch"
+            
             articles.append(RawArticle(
                 title=entry.get("title", ""),
                 url=entry.get("link", ""),
-                source="MarketWatch",
+                source=source_name,
                 published_at=pub_dt,
-                raw_content=entry.get("summary", "") or entry.get("title", ""),
+                raw_content=entry.get("summary", "") or _scrape_body(entry.get("link", "")) or entry.get("title", ""),
             ))
     except Exception as e:
-        logger.error("MarketWatch RSS 수집 오류: %s", e)
+        logger.error(f"{url} RSS 수집 오류: {e}")
     
     return articles
 
@@ -110,7 +128,7 @@ async def _fetch_from_yfinance(symbol: str, limit: int) -> list[RawArticle]:
             title = item.get("title") or content.get("title", "")
             if not title:
                 continue
-            raw_text = content.get("body", "") or content.get("summary", "") or title
+            raw_text = content.get("body", "") or content.get("summary", "") or _scrape_body(url) or title
             pub_dt = _parse_pub_time(item, content)
             # yfinance 0.2.48+: 원문 URL은 content.clickThroughUrl에 있음
             # 값이 None인 경우를 대비해 or {} 패턴 사용

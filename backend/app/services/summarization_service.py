@@ -17,7 +17,7 @@ from pydantic import BaseModel
 logger = logging.getLogger(__name__)
 
 MAX_ARTICLES        = 10
-MAX_CONTENT_CHARS   = 500
+MAX_CONTENT_CHARS   = 1024
 MAX_SUMMARY_BULLETS = 10
 
 CLAUDE_MODEL  = "claude-3-5-sonnet-20240620"
@@ -31,7 +31,7 @@ class ArticleInput(BaseModel):
 
 class SummaryPoint(BaseModel):
     point: str      # 종합 요약 bullet 문장
-    quote: str      # 근거 원문 구절
+    quote: str = "" # 근거 원문 구절 (Market Pulse에서는 미사용)
 
 class DigestResult(BaseModel):
     summary: list[SummaryPoint]
@@ -85,23 +85,22 @@ def _build_prompt(
     # Market Pulse (MarketWatch) 전용 프롬프트 (사용자 요청 반영)
     if symbol == "MARKET":
         return f"""너는 주식투자에 도움을 주는 똑똑한 비서야.
-아래 제공된 MarketWatch 페이지의 최신 {len(articles)}개의 뉴스를 잘 요약하고 정리해줘.
+아래 제공된 MarketWatch 페이지의 최신 {len(articles)}개의 뉴스를 각각 요약해줘.
 https://www.marketwatch.com
 
 ## 지시사항
-1. 투자자에게 중요한 핵심 인사이트를 {MAX_SUMMARY_BULLETS}개 이내의 bullet point로 요약하세요.
-2. 각 요약은 객관적이고 전문적인 톤을 유지하세요.
-3. 전체 뉴스 흐름에 대한 Sentiment Score (-1.0 ~ +1.0)를 산출하세요.
+1. 각 기사마다 정확히 하나의 point로 요약하세요. 여러 문장이 필요하면 하나의 point 안에 모두 포함하세요.
+2. 반드시 기사 수와 동일한 수의 point를 출력하세요. 기사 순서대로 요약하세요.
+3. 각 요약은 객관적이고 전문적인 톤을 유지하세요.
 4. {lang_instruction}
 
 ## 응답 형식 (반드시 아래 JSON 포맷만 출력)
 {{
   "summary": [
-    {{"point": "요약 문장", "quote": "근거 원문 (영어)"}},
+    {{"point": "기사 1에 대한 요약 (여러 문장 가능)"}},
+    {{"point": "기사 2에 대한 요약 (여러 문장 가능)"}},
     ...
-  ],
-  "sentiment_score": 0.00,
-  "sentiment_label": "Positive | Neutral | Negative"
+  ]
 }}
 
 ## 뉴스 데이터
