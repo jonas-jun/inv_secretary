@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # App
     app_env: str = "development"
     debug: bool = False
-    cors_origins: list[str] = ["http://localhost:3000"]
+    cors_origins: list[str] = ["http://localhost:3000", "https://fin-aily.vercel.app"]
 
     class Config:
         env_file = ".env"
