@@ -1,11 +1,5 @@
 "use client";
 
-/**
- * components/ui/Header.tsx
- * ─────────────────────────
- * 글로벌 헤더 + 네비게이션.
- */
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -19,10 +13,10 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-        {/* 로고 */}
+        {/* 로고: StockInsight -> fin-aily 로 변경 */}
         <Link href="/" className="flex items-center gap-1.5 font-bold text-blue-600 text-base">
           <span>📈</span>
-          <span>StockInsight</span>
+          <span>fin-Aily</span>
         </Link>
 
         {/* 네비 */}

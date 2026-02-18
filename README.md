@@ -1,73 +1,41 @@
-# 📈 StockInsight
+# 📈 fin-aily (핀-에일리)
 
-> AI 기반 글로벌 주식 뉴스 종합 요약 플랫폼
-
-티커를 검색하면 최신 뉴스 10개를 AI가 한 번에 읽고, bullet point 종합 요약과 Sentiment Score를 제공합니다.
+**fin-aily**는 AI 기술을 활용하여 복잡한 금융 뉴스를 투자자에게 꼭 필요한 핵심 정보로 정제해주는 스마트 주식 투자 비서 서비스입니다. "Finance + AI + Daily"의 의미를 담아 사용자가 매일의 시장 흐름을 가장 쉽고 빠르게 파악할 수 있도록 돕습니다.
 
 ---
 
-## 목차
+## ✨ 주요 기능
 
-1. [프로젝트 구조](#프로젝트-구조)
-2. [사전 준비](#사전-준비)
-3. [빠른 시작](#빠른-시작)
-4. [백엔드 설정](#백엔드-설정)
-5. [프론트엔드 설정](#프론트엔드-설정)
-6. [Supabase 설정](#supabase-설정)
-7. [주요 기능 및 API](#주요-기능-및-api)
-8. [배포](#배포)
-9. [트러블슈팅](#트러블슈팅)
+### 1. Ticker Brief (티커 브리핑)
+* **종목 맞춤형 분석**: 특정 티커(예: AAPL, TSLA)를 검색하면 해당 종목과 관련된 최신 뉴스 10개를 즉시 수집합니다.
+* **10줄 핵심 요약**: 수집된 뉴스를 분석하여 투자자 관점에서 가장 중요한 10개의 불렛 포인트로 요약해 드립니다.
+* **감성 분석 (Sentiment Analysis)**: 뉴스 흐름이 긍정적인지 부정적인지 AI가 판단하여 투자 지표로 활용할 수 있게 제공합니다.
 
----
-
-## 프로젝트 구조
-
-```
-project/
-├── backend/                        # Python FastAPI 백엔드
-│   ├── app/
-│   │   ├── main.py                 # FastAPI 앱 진입점
-│   │   ├── config.py               # 환경 변수 설정
-│   │   ├── dependencies.py         # DB / 인증 의존성
-│   │   ├── middleware/
-│   │   │   └── rate_limit_middleware.py
-│   │   ├── routers/
-│   │   │   ├── news_router.py      # GET /news/{symbol}
-│   │   │   ├── tickers_router.py   # GET /tickers/search
-│   │   │   └── users_router.py     # GET/PATCH /users/me
-│   │   └── services/
-│   │       ├── news_service.py         # yfinance / RSS 뉴스 수집
-│   │       ├── summarization_service.py # Claude / Gemini API 종합 요약 (1회 호출)
-│   │       └── cache_service.py        # ticker 단위 TTL 캐시
-│   ├── migrations/
-│   │   └── 001_initial_schema.sql  # 전체 DB 스키마
-│   ├── pyproject.toml
-│   └── .env.example
-│
-└── frontend/                       # Next.js 14 프론트엔드
-    ├── app/
-    │   ├── page.tsx                # 홈 (검색)
-    │   ├── stock/[symbol]/page.tsx # 종목 뉴스 페이지
-    │   └── auth/page.tsx           # 로그인 / 회원가입
-    ├── components/
-    │   ├── news/
-    │   │   ├── DigestCard.tsx      # AI 종합 요약 + Sentiment
-    │   │   └── ArticleList.tsx     # 기사 제목/링크 목록
-    │   └── ui/
-    │       ├── TickerSearch.tsx    # 자동완성 검색창
-    │       ├── Header.tsx
-    │       └── Skeletons.tsx
-    ├── lib/
-    │   ├── api.ts                  # 백엔드 API 클라이언트
-    │   ├── supabase.ts             # Supabase 브라우저 클라이언트
-    │   └── utils.ts                # 공통 유틸 함수
-    ├── package.json
-    └── .env.local.example
-```
+### 2. Market Pulse (마켓 펄스)
+* **시장 전체 흐름 파악**: MarketWatch의 실시간 Top Stories를 기반으로 현재 금융 시장의 맥박을 짚어줍니다.
+* **똑똑한 비서 페르소나**: "주식투자에 도움을 주는 똑똑한 비서"라는 특화된 프롬프트를 사용하여 시장 전체의 인사이트를 요약합니다.
+* **실시간 업데이트**: 별도의 검색 없이도 접속 즉시 현재 가장 뜨거운 경제 이슈들을 확인할 수 있습니다.
 
 ---
 
-## 사전 준비
+## 🛠 Tech Stack
+
+### Frontend
+* **Framework**: Next.js 14 (App Router)
+* **Styling**: Tailwind CSS
+* **Environment**: Node.js v20.20.0 (WSL2)
+
+### Backend
+* **Framework**: Python FastAPI
+* **Data Sourcing**: yfinance, Feedparser (RSS)
+* **AI Engine**: Google Gemini 2.0 Flash, Anthropic Claude 3.5 Sonnet
+* **Database**: Supabase (PostgreSQL)
+
+---
+
+## 🚀 시작하기
+
+### 0. 사전 준비
 
 아래 계정 및 도구가 필요합니다.
 
@@ -80,120 +48,103 @@ project/
 | **Gemini API Key** | Gemini AI 요약 (Gemini 사용 시) | https://aistudio.google.com |
 | **Supabase 프로젝트** | DB + 인증 | https://supabase.com |
 
----
+### 1. 환경 설정
+본 프로젝트는 **WSL2** 환경 및 **Node.js v20.20.0**에 최적화되어 있습니다.
 
-## 빠른 시작
-
-### 1. 압축 해제
-
-```bash
-tar -xzf stock-insight.tar.gz
-cd project
-```
-
-### 2. 백엔드 실행
-
-```bash
-cd backend
-cp .env.example .env        # 환경 변수 입력 (아래 참조)
-poetry install
-poetry run uvicorn app.main:app --reload --port 8000
-```
-
-### 3. 프론트엔드 실행
-
-```bash
-cd frontend
-cp .env.local.example .env.local   # 환경 변수 입력 (아래 참조)
-npm install
-npm run dev
-```
-
-브라우저에서 http://localhost:3000 접속
-
----
-
-## 백엔드 설정
-
-### 환경 변수 (`backend/.env`)
-
-`.env.example`을 복사 후 값을 채웁니다.
-
+**Backend (`/backend/.env`)**
 ```env
-# Summarization Provider: "claude" | "gemini"  ← 사용할 AI 모델 선택
-SUMMARIZATION_PROVIDER=claude
+ANTHROPIC_API_KEY=your_anthropic_api_key
+GEMINI_API_KEY=your_gemini_api_key
 
-# Anthropic (Claude 사용 시 필수)
-ANTHROPIC_API_KEY=sk-ant-...         # https://console.anthropic.com
-
-# Gemini (Gemini 사용 시 필수)
-GEMINI_API_KEY=AIza...               # https://aistudio.google.com
-
-# Supabase
-SUPABASE_URL=https://xxxx.supabase.co
-SUPABASE_ANON_KEY=eyJ...             # Supabase > Project Settings > API
-SUPABASE_SERVICE_ROLE_KEY=eyJ...     # Supabase > Project Settings > API
-
-# App
-APP_ENV=development
-DEBUG=true
-CORS_ORIGINS=["http://localhost:3000"]
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_KEY=your_supabase_anon_key
+SUMMARIZATION_PROVIDER=gemini  # 또는 claude
 ```
 
-> **모델 전환 방법**: `SUMMARIZATION_PROVIDER` 값만 바꾸면 됩니다. 서버 재시작이 필요합니다.
->
-> | `SUMMARIZATION_PROVIDER` | 필요한 키 | 사용 모델 |
-> |--------------------------|-----------|-----------|
-> | `claude` (기본값) | `ANTHROPIC_API_KEY` | claude-haiku-4-5-20251001 |
-> | `gemini` | `GEMINI_API_KEY` | gemini-2.0-flash |
-
-### 패키지 설치 및 서버 실행
-
-```bash
-cd backend
-
-# 의존성 설치
-poetry install
-
-# 개발 서버 (자동 리로드)
-poetry run uvicorn app.main:app --reload --port 8000
-
-# 프로덕션 서버
-poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
-```
-
-서버 실행 후 http://localhost:8000/docs 에서 API 문서를 확인할 수 있습니다. (`DEBUG=true` 필요)
-
----
-
-## 프론트엔드 설정
-
-### 환경 변수 (`frontend/.env.local`)
-
-`.env.local.example`을 복사 후 값을 채웁니다.
-
+**Frontend (`/frontend/.env.local`)**
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 NEXT_PUBLIC_API_URL=http://localhost:8000/v1   # 백엔드 주소
 ```
 
-### 패키지 설치 및 실행
+### 2. 실행 방법
+
+**Backend (FastAPI)**
+
+```bash
+cd backend
+poetry install
+# 개발 서버 (자동 리로드)
+poetry run uvicorn app.main:app --reload --port 8000
+# 프로덕션 서버
+poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+```
+서버 실행 후 http://localhost:8000/docs 에서 API 문서를 확인할 수 있습니다. (`DEBUG=true` 필요)
+
+
+**Frontend (Next.js)**
 
 ```bash
 cd frontend
-
 npm install
-
-# 개발 서버
 npm run dev
-
 # 프로덕션 빌드
 npm run build
 npm run start
 ```
+브라우저에서 http://localhost:3000 접속
 
 ---
+
+## 📂 프로젝트 구조
+
+`fin-aily`는 효율적인 유지보수를 위해 프론트엔드와 백엔드가 분리된 모노레포 구조를 가집니다.
+
+```text
+inv_secretary/
+├── frontend/                # Next.js 14 기반 웹 대시보드
+│   ├── app/
+│   │   ├── page.tsx         # 메인 홈 (Brief/Pulse 탭 로직 및 fin-aily 브랜드 적용)
+│   │   ├── layout.tsx       # 글로벌 레이아웃 및 폰트 설정
+│   │   └── stock/[symbol]/  # 개별 종목 상세 페이지
+│   ├── components/
+│   │   ├── ui/              # TickerSearch, Header 등 공용 UI 컴포넌트
+│   │   └── news/            # DigestCard, ArticleList 등 뉴스 관련 컴포넌트
+│   └── lib/
+│       ├── api.ts           # 백엔드 API 통신 규격 (Axios)
+│       └── supabase.ts      # 클라이언트측 Supabase 설정
+└── backend/                 # FastAPI 기반 뉴스 분석 서버
+    ├── app/
+    │   ├── main.py          # FastAPI 서버 진입점 및 미들웨어 설정
+    │   ├── routers/         # API 엔드포인트 정의 (news, tickers 등)
+    │   └── services/        # 핵심 비즈니스 로직
+    │       ├── news_service.py           # yfinance 및 RSS 뉴스 수집
+    │       └── summarization_service.py  # Gemini/Claude 기반 AI 요약
+    ├── migrations/          # Supabase(PostgreSQL) 테이블 스키마
+    └── pyproject.toml       # Poetry 의존성 관리 설정
+```
+
+---
+
+## 💡 API Reference
+
+`fin-aily` 백엔드 서버에서 제공하는 주요 API 명세입니다. 모든 요청과 응답은 JSON 형식을 사용합니다.
+
+### 1. 뉴스 및 요약 (News & Summarization)
+
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/news/{symbol}` | `GET` | 특정 종목(티커)의 최신 뉴스 10개를 수집하고 AI가 10줄 이내의 핵심 포인트로 요약합니다. |
+| `/news/market-pulse` | `GET` | MarketWatch의 Top Stories 10개를 가져와 "똑똑한 주식 투자 비서" 페르소나를 통해 시장 전체의 인사이트를 요약합니다. |
+
+### 2. 종목 검색 (Ticker Search)
+
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/tickers/search` | `GET` | 사용자가 입력한 쿼리(예: "Apple" 또는 "AAPL")에 맞는 티커 심볼과 종목명을 검색하여 반환합니다. |
+
+
 
 ## Supabase 설정
 
@@ -241,36 +192,6 @@ Supabase 대시보드 **Authentication > Providers** 에서 원하는 소셜 로
 - Email (기본 활성화)
 - Google OAuth (선택)
 
----
-
-## 주요 기능 및 API
-
-### 뉴스 종합 요약 흐름
-
-```
-사용자가 "AAPL" 검색
-    │
-    ▼
-[1] ticker_summaries 캐시 확인 (24h TTL)
-    │
-  캐시 HIT ──────────────────────────────┐
-    │ MISS                               │
-    ▼                                    │
-[2] yfinance / RSS에서 뉴스 10개 수집     │
-    │                                    │
-    ▼                                    │
-[3] AI API 1회 호출 (Claude 또는 Gemini) │
-    - 10개 기사를 한 번에 전달            │
-    - bullet 종합 요약 생성 (최대 10줄)   │
-    - Sentiment Score 산출               │
-    │                                    │
-    ▼                                    │
-[4] ticker_summaries에 캐시 저장          │
-    │                                    │
-    └─────────────────────────────────────┘
-    ▼
-[5] digest(종합 요약) + articles(기사 목록) 반환
-```
 
 ### 주요 API 엔드포인트
 
@@ -327,7 +248,6 @@ Supabase 대시보드 **Authentication > Providers** 에서 원하는 소셜 로
 }
 ```
 
----
 
 ## 배포
 

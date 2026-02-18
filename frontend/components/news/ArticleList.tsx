@@ -8,7 +8,23 @@
  */
 
 import type { Article } from "@/lib/api";
-import { timeAgo } from "@/lib/utils";
+import { timeAgo, formatDate } from "@/lib/utils";
+
+function ArticleMeta({ source, publishedAt }: { source: string; publishedAt: string }) {
+  const relative = timeAgo(publishedAt);
+  const exact    = formatDate(publishedAt);
+  return (
+    <div className="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
+      <span>{source}</span>
+      {relative && (
+        <>
+          <span>·</span>
+          <time dateTime={publishedAt} title={exact}>{relative}</time>
+        </>
+      )}
+    </div>
+  );
+}
 
 interface Props {
   articles: Article[];
@@ -26,21 +42,27 @@ export function ArticleList({ articles }: Props) {
       <ul className="divide-y divide-slate-100">
         {articles.map((article) => (
           <li key={article.id} className="py-3">
-            <a
-              href={article.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group block"
-            >
-              <p className="text-sm font-medium text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
-                {article.title}
-              </p>
-              <div className="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
-                <span>{article.source}</span>
-                <span>·</span>
-                <span>{timeAgo(article.published_at)}</span>
+            {article.url ? (
+              <a
+                href={article.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block"
+              >
+                <p className="text-sm font-medium text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
+                  {article.title}
+                  <span className="ml-1.5 inline-block opacity-0 group-hover:opacity-60 transition-opacity text-blue-500 text-xs">↗</span>
+                </p>
+                <ArticleMeta source={article.source} publishedAt={article.published_at} />
+              </a>
+            ) : (
+              <div>
+                <p className="text-sm font-medium text-slate-800 line-clamp-2 leading-snug">
+                  {article.title}
+                </p>
+                <ArticleMeta source={article.source} publishedAt={article.published_at} />
               </div>
-            </a>
+            )}
           </li>
         ))}
       </ul>
