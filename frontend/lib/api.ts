@@ -105,6 +105,8 @@ export const api = {
   news: {
     get: (symbol: string, lang = "ko", limit = 10): Promise<NewsResponse> =>
       apiFetch(`/news/${symbol}?lang=${lang}&limit=${limit}`),
+    getMarketPulse: (lang = "ko"): Promise<NewsResponse> =>
+      apiFetch(`/news/market-pulse?lang=${lang}`),
   },
 
   users: {
