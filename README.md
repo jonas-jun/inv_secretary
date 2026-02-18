@@ -34,8 +34,6 @@ project/
 │   │   ├── routers/
 │   │   │   ├── news_router.py      # GET /news/{symbol}
 │   │   │   ├── tickers_router.py   # GET /tickers/search
-│   │   │   ├── watchlist_router.py # GET/POST/DELETE /watchlist
-│   │   │   ├── sentiment_router.py # GET /sentiment/overview
 │   │   │   └── users_router.py     # GET/PATCH /users/me
 │   │   └── services/
 │   │       ├── news_service.py         # yfinance / RSS 뉴스 수집
@@ -48,9 +46,8 @@ project/
 │
 └── frontend/                       # Next.js 14 프론트엔드
     ├── app/
-    │   ├── page.tsx                # 홈 (검색 + 인기 종목)
+    │   ├── page.tsx                # 홈 (검색)
     │   ├── stock/[symbol]/page.tsx # 종목 뉴스 페이지
-    │   ├── watchlist/page.tsx      # 워치리스트
     │   └── auth/page.tsx           # 로그인 / 회원가입
     ├── components/
     │   ├── news/
@@ -219,7 +216,6 @@ backend/migrations/001_initial_schema.sql
 |--------|------|
 | `users` | 사용자 확장 프로필 |
 | `tickers` | 종목 마스터 |
-| `watchlists` | 사용자 관심 종목 |
 | `news_articles` | 수집된 뉴스 원문 |
 | `ticker_summaries` | AI 종합 요약 캐시 (TTL 24h) |
 | `guest_rate_limits` | 비로그인 일일 조회 제한 |
@@ -282,10 +278,6 @@ Supabase 대시보드 **Authentication > Providers** 에서 원하는 소셜 로
 |--------|------|------|------|
 | `GET` | `/v1/tickers/search?q=AAPL` | 티커 자동완성 | 불필요 |
 | `GET` | `/v1/news/{symbol}` | 뉴스 + AI 종합 요약 | 선택 (비로그인 일 5회) |
-| `GET` | `/v1/watchlist` | 관심 종목 조회 | 필요 |
-| `POST` | `/v1/watchlist` | 관심 종목 추가 | 필요 |
-| `DELETE` | `/v1/watchlist/{symbol}` | 관심 종목 제거 | 필요 |
-| `GET` | `/v1/sentiment/overview` | Sentiment 대시보드 | 필요 |
 | `GET` | `/v1/users/me` | 내 프로필 | 필요 |
 | `PATCH` | `/v1/users/me` | 프로필 수정 | 필요 |
 
@@ -299,11 +291,26 @@ Supabase 대시보드 **Authentication > Providers** 에서 원하는 소셜 로
   "last_updated": "2026-02-17T09:30:00Z",
   "digest": {
     "summary": [
-      "애플이 1분기 매출 1,240억 달러를 기록하며 역대 최고 실적을 달성했다.",
-      "iPhone 판매가 전년 대비 12% 증가하며 실적을 견인했다.",
-      "서비스 부문 매출이 사상 최고치를 경신했다.",
-      "팀 쿡 CEO는 인도 시장 확대 전략을 재확인했다.",
-      "AI 기능 탑재 확대로 ASP 상승이 예상된다."
+      {
+        "point": "애플이 1분기 매출 1,240억 달러를 기록하며 역대 최고 실적을 달성했다.",
+        "quote": "Apple posted record quarterly revenue of $124.3 billion, up 4 percent year over year."
+      },
+      {
+        "point": "iPhone 판매가 전년 대비 12% 증가하며 실적을 견인했다.",
+        "quote": "iPhone revenue grew 12% year-over-year, driven by strong demand for the iPhone 16 lineup."
+      },
+      {
+        "point": "서비스 부문 매출이 사상 최고치를 경신했다.",
+        "quote": "Services revenue reached an all-time high of $26.3 billion, reflecting continued growth across the App Store, Apple Music, and iCloud."
+      },
+      {
+        "point": "팀 쿡 CEO는 인도 시장 확대 전략을 재확인했다.",
+        "quote": "CEO Tim Cook reaffirmed Apple's commitment to expanding its retail and manufacturing presence in India."
+      },
+      {
+        "point": "AI 기능 탑재 확대로 ASP 상승이 예상된다.",
+        "quote": "Analysts expect Apple Intelligence features to drive a higher average selling price in upcoming iPhone models."
+      }
     ],
     "sentiment": { "score": 0.74, "label": "Positive" },
     "based_on_articles": 10
