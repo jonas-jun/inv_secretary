@@ -16,7 +16,7 @@ from app.services.news_service import RawArticle
 
 logger = logging.getLogger(__name__)
 
-ARTICLE_CACHE_TTL_HOURS = 0.05
+ARTICLE_CACHE_TTL_HOURS = 0.1
 
 
 async def get_or_create_ticker(
@@ -49,9 +49,7 @@ async def get_cached_articles(
     ticker_id: int,
     limit: int = 10,
 ) -> Optional[list[dict]]:
-    """
-    1시간 이내에 수집된 기사가 있으면 반환하고, 없으면 None을 반환한다.
-    """
+
     cutoff = datetime.now(tz=timezone.utc) - timedelta(hours=ARTICLE_CACHE_TTL_HOURS)
 
     res = (

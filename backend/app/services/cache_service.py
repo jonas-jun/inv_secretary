@@ -16,7 +16,7 @@ from app.services.summarization_service import DigestResult, SummaryPoint
 
 logger = logging.getLogger(__name__)
 
-CACHE_TTL_HOURS = 0.05
+CACHE_TTL_HOURS = 0.1
 
 
 async def get_cached_digest(
